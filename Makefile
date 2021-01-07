@@ -2,7 +2,11 @@ ifeq (,$(QUIET))
   QUIET:=@
 endif
 
-MVLC_DIR := /home/bloeher/opt/mesytec_mvme/mesytec-mvlc
+ifeq (,$(MVLC_DIR))
+  $(error Need to set environment variable MVLC_DIR to point to the mesytec-mvlc repository)
+endif
+
+# MVLC_DIR := /home/bloeher/opt/mesytec_mvme/mesytec-mvlc
 
 CCNAME:=$(notdir $(CC))
 BUILD_DIR := build_$(CCNAME)_$(shell $(CC) -dumpmachine)_$(shell $(CC) -dumpversion)
