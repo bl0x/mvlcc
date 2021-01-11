@@ -89,9 +89,12 @@ mvlc_init_readout(mvlc_t a_mvlc)
 
 	auto result = init_readout(m->mvlc, m->config, {});
 
+	printf("mvlc_init_readout\n");
+	std::cout << "init_readout result = " << result.init << std::endl;
+
 	rc = result.ec.value();
 	if (rc != 0) {
-		printf("'%s'\n", result.ec.message().c_str());
+		printf("init_readout: '%s'\n", result.ec.message().c_str());
 		abort();
 	}
 
@@ -100,8 +103,8 @@ mvlc_init_readout(mvlc_t a_mvlc)
 	send_empty_request(&m->mvlc);
 
 	auto ec = setup_readout_triggers(m->mvlc, m->config.triggers);
-	if (!ec) {
-		printf("'%s'\n", ec.message().c_str());
+	if (ec) {
+		printf("setup_readout_triggers: '%s'\n", ec.message().c_str());
 		abort();
 	}
 
@@ -119,9 +122,11 @@ send_empty_request(MVLC *a_mvlc)
 
 	auto ec = a_mvlc->write(Pipe::Data,
 	    reinterpret_cast<const uint8_t *>(empty_request),
-	    2 * sizeof(uint32_t),bytesTransferred);
+	    2 * sizeof(uint32_t), bytesTransferred);
 
-	if (!ec) {
+	printf("send_empty_request: bytesTransferred = %lu\n", bytesTransferred);
+
+	if (ec) {
 		printf("Failure writing empty request.\n");
 		abort();
 	}
@@ -137,12 +142,23 @@ readout_eth(eth::MVLC_ETH_Interface *a_eth, uint8_t *a_buffer,
 	size_t total_bytes = 0;
 	uint8_t *buffer = a_buffer;
 	size_t bytes_free = a_buffer_len;
+	int cycle = 0;
 
+	printf("  readout_eth: start, bytes_free = %lu\n",
+	    bytes_free);
 	while (bytes_free >= eth::JumboFrameMaxSize)
 	{
 		auto result = a_eth->read_packet(Pipe::Data, buffer,
 		    bytes_free);
 		auto ec = result.ec;
+		if (ec == ErrorType::ConnectionError) {
+			printf("Connection error.\n");
+			abort();
+		}
+		if (ec == MVLCErrorCode::ShortRead) {
+			printf("Short read.\n");
+			abort();
+		}
 		rc = ec.value();
 		if (rc != 0) {
 			printf("'%s'\n", result.ec.message().c_str());
@@ -155,6 +171,11 @@ readout_eth(eth::MVLC_ETH_Interface *a_eth, uint8_t *a_buffer,
 		buffer += result.bytesTransferred;
 		bytes_free -= result.bytesTransferred;
 		total_bytes += result.bytesTransferred;
+
+		printf("  readout_eth: cycle = %d, bytes_free = %lu, bytes_tranferred = %d, total_bytes = %lu\n",
+		    cycle, bytes_free, result.bytesTransferred, total_bytes);
+
+		++cycle;
 	}
 
 	*a_bytes_transferred = total_bytes;
@@ -171,15 +192,17 @@ mvlc_readout_eth(mvlc_t a_mvlc, uint8_t **a_buffer, size_t bytes_free)
 
 	buffer = *a_buffer;
 
+	printf("mvlc_readout_eth: a_buffer@%p, bytes_free = %lu\n", (void *)*a_buffer, bytes_free);
+
 	rc = readout_eth(m->ethernet, buffer, bytes_free, &bytes_transferred);
 	if (rc != 0) {
 		printf("Failure in readout_eth %d\n", rc);
 		abort();
 	}
 
-	a_buffer += bytes_transferred;
-
 	printf("Transferred %lu bytes\n", bytes_transferred);
+
+	*a_buffer += bytes_transferred;
 
 	return rc;
 }
