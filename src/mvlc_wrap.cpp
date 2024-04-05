@@ -90,7 +90,7 @@ mvlc_init_readout(mvlc_t a_mvlc)
 	auto result = init_readout(m->mvlc, m->config, {});
 
 	printf("mvlc_init_readout\n");
-	std::cout << "init_readout result = " << result.init << std::endl;
+	// std::cout << "init_readout result = " << result.init << std::endl;
 
 	rc = result.ec.value();
 	if (rc != 0) {
@@ -120,7 +120,7 @@ send_empty_request(MVLC *a_mvlc)
 		0xf1000000, 0xf2000000
 	};
 
-	auto ec = a_mvlc->write(Pipe::Data,
+	auto ec = a_mvlc->getImpl()->write(Pipe::Data,
 	    reinterpret_cast<const uint8_t *>(empty_request),
 	    2 * sizeof(uint32_t), bytesTransferred);
 
