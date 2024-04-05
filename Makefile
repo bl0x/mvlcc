@@ -22,6 +22,8 @@ CXXFLAGS += -I$(MVLC_DIR)/external/fmt/include
 CXXFLAGS += -I$(MVLC_DIR)/src/mesytec-mvlc
 CXXFLAGS += -I$(MVLC_DIR)/build/src
 CXXFLAGS += -I$(MVLC_DIR)/build/src/mesytec-mvlc
+CXXFLAGS += -I$(MVLC_DIR)/external/spdlog/include
+CXXFLAGS += -I$(MVLC_DIR)/external/argh
 
 ifeq (,$(MODE))
   CXXFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE
