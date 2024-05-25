@@ -1,11 +1,12 @@
 #include <mvlc_readout_config.h>
 #include <mvlc_wrap.h>
-#include <cstdio>
+#include <stdio.h>
 
 int main(){
   mvlc_t mvlc = mvlc_make_mvlc_eth("192.168.1.103");
+  int ec;
 
-  if (auto ec = mvlc_connect(mvlc))
+  if (ec = mvlc_connect(mvlc))
     {
       printf("Could not connect\n");
       return 1;
@@ -15,7 +16,7 @@ int main(){
   uint16_t regAddr = 0x6008u;
   uint32_t readValue = 0u;
 
-  int ec = mvlc_single_vme_read(mvlc, vmeBase + regAddr, &readValue, 178, 0);
+  ec = mvlc_single_vme_read(mvlc, vmeBase + regAddr, &readValue, 178, 0);
 
   regAddr = 0x6004u;
   
