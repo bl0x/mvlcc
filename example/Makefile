@@ -11,3 +11,6 @@ test.o: test.c
 
 test: test.o
 	g++ -o test test.o -L../$(BUILD_DIR) -lmvlcc -L$(MESYTECPATH)/build/ -lmesytec-mvlc -Wl,-rpath=$(MESYTECPATH)/build/
+
+clean:
+	rm -rf test test.o
