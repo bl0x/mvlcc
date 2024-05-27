@@ -38,6 +38,9 @@ LIB_DIR=build_${CC}_${ARCH_SUFFIX}
 if [ -e ${MVLCC_DIR}/${LIB_DIR}/mvlcc.config ]
 then
     . ${MVLCC_DIR}/${LIB_DIR}/mvlcc.config
+else
+    echo "Missing: ${MVLCC_DIR}/${LIB_DIR}/mvlcc.config" 1>&2
+    exit 1
 fi
 
 CFLAGS="$CFLAGS -I ${MVLCC_DIR}/include/"
