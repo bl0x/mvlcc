@@ -206,3 +206,49 @@ mvlc_readout_eth(mvlc_t a_mvlc, uint8_t **a_buffer, size_t bytes_free)
 
 	return rc;
 }
+
+int
+mvlc_single_vme_read(mvlc_t a_mvlc, uint32_t address, uint32_t * value, uint8_t  amod, uint8_t dataWidth)
+{
+  int rc;
+
+  auto m = static_cast<struct mvlcc *>(a_mvlc);
+
+  mesytec::mvlc::VMEDataWidth m_width = static_cast<mesytec::mvlc::VMEDataWidth>(dataWidth);
+  // mesytec::mvlc::u32 * m_value = (mesytec::mvlc::u32 *) value;
+
+  auto ec = m->mvlc.vmeRead(address, *value, vme_amods::A32, VMEDataWidth::D16);
+  // auto ec = m->mvlc.vmeRead(address, *m_value, amod, VMEDataWidth::D16);
+  rc = ec.value();
+  if (rc != 0) {
+    printf("Failure in vmeRead %d\n", rc);
+    abort();
+  }
+
+  printf("\nvalue = %x\n", *value);
+
+  (void) amod;
+  (void) m_width;
+
+  return rc;
+}
+
+int
+mvlc_single_vme_write(mvlc_t a_mvlc, uint32_t address, uint32_t value, uint8_t amod, uint8_t dataWidth)
+{
+  int rc;
+
+  auto m = static_cast<struct mvlcc *>(a_mvlc);
+
+  auto ec = m->mvlc.vmeWrite(address, value, vme_amods::A32, VMEDataWidth::D16);
+  rc = ec.value();
+  if (rc != 0) {
+    printf("Failure in vmeWrite %d\n", rc);
+    abort();
+  }
+
+  (void) amod;
+  (void) dataWidth;
+
+  return rc;
+}

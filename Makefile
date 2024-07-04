@@ -55,6 +55,8 @@ $(TARGET): $(OBJECTS)
 	@echo " AR " $@
 	$(QUIET)$(AR) rcs $@ $^
 
+$(TARGET): $(BUILD_DIR)/mvlcc.config
+
 $(BUILD_DIR)/%.o: src/%.cpp
 	@echo "CXX " $@
 	$(QUIET)$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -71,6 +73,11 @@ $(BUILD_DIR):
 		echo "MKDR" $@ && \
 		mkdir -p $(BUILD_DIR) && \
 		mkdir -p $(BUILD_DIR)/bin
+
+$(BUILD_DIR)/mvlcc.config: | $(BUILD_DIR)
+	@echo "CFG " $@
+	$(QUIET)rm -f $@
+	$(QUIET)echo "export MVLC_DIR=\"$(MVLC_DIR)\"" >> $@
 
 .PHONY: clean
 clean:
